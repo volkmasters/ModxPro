@@ -1,12 +1,7 @@
 <div class="topic-meta d-flex flex-wrap no-gutters align-items-center item-data" data-id="{$item.id}" data-type="topic">
     <div class="col-12 col-md-6 d-flex align-items-center justify-content-center justify-content-md-start">
         {if !$user}
-            <div class="avatar">
-                <a href="/users/{$item.usename ? $item.username : $item.createdby}">
-                    <img src="{['photo' => $item.photo, 'email' => $item.email] | avatar : 48}" width="48"
-                         srcset="{['photo' => $item.photo, 'email' => $item.email] | avatar : 96} 2x"/>
-                </a>
-            </div>
+            {$item | avatar : 48}
             <div class="ml-2 created">
                 <div class="author">
                     <a href="/users/{$item.usename ? $item.username : $item.createdby}">{$item.fullname}</a>
@@ -21,21 +16,21 @@
     </div>
     <div class="meta col-12 col-md-6 mt-3 mt-md-0 col-md-3 ml-md-auto d-flex justify-content-around justify-content-md-end">
         <div class="star{if $item.star} active{/if}">
-            {if $_modx->user.id}
+            {if $_modx->isAuthenticated()}
                 <a href="#">
-                    <div> <span class="placeholder">{$item.stars}</span></div>
+                    <div> <span class="placeholder">{$item.stars ?: ''}</span></div>
                 </a>
             {else}
-                <div> {$item.stars}</div>
+                <div> {$item.stars ?: ''}</div>
             {/if}
         </div>
         <div class="views ml-md-3">
             <i class="far fa-eye"></i> {number_format($item.views, 0, ',', ' ')}
         </div>
         <div class="comments ml-md-3">
-            {if $item.section_uri != 'work'}
+            {if strpos($item.uri, 'work') !== 0}
                 {if !$_modx->resource.is_topic}
-                    <a href="/{$item.section_uri}/{$item.id}#comments">
+                    <a href="/{$item.uri}#comments">
                 {/if}
                 <i class="far fa-comment"></i> {$item.comments}
                 {if !$_modx->resource.is_topic && $item.new_comments}

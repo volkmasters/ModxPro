@@ -10,7 +10,7 @@
     <div class="dropdown-menu user-menu">
         <div class="header">
             <a href="{$profile}" class="avatar">
-                <img src="{$_modx->user | avatar : 80}" srcset="{$_modx->user | avatar : 160} 2x" width="80" />
+                {$_modx->user | avatar : 80 : '<img src="{image1}" srcset="{image2} 2x" width="{width}" alt="{alt}">'}
             </a>
             <div class="wrapper">
                 <div class="email">{$email}</div>

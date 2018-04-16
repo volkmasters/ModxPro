@@ -8,11 +8,13 @@ class App
     public $pdoTools;
     public $config = [];
 
-    const assets_version = '1.15-dev';
+    const assets_version = '1.16-dev';
+    const avatars_path = 'images/avatars/';
+    const gravatars_cache = 86400;
 
 
     /**
-     * @param modX $this ->modx
+     * @param modX $modx
      * @param array $config
      */
     function __construct(modX &$modx, array $config = [])
@@ -91,12 +93,13 @@ class App
         extract($scriptProperties);
         switch ($event->name) {
             case 'pdoToolsOnFenomInit':
-                $modx = $this->modx;
+                $app = $this;
                 $pdo = $this->pdoTools;
                 /** @var Fenom|FenomX $fenom */
                 $fenom->addAllowedFunctions([
                     'array_keys',
                     'array_values',
+                    'strpos',
                 ]);
 
                 $fenom->addAccessorSmart('App', 'App', Fenom::ACCESSOR_PROPERTY);
@@ -126,18 +129,12 @@ class App
                     }
                 }
 
-                $fenom->addModifier('avatar', function ($data, $size = 48) use ($modx) {
-                    if (is_numeric($data)) {
-                        $data = [];
-                        if ($user = $modx->getObject('modUserProfile', ['internalKey' => (int)$data])) {
-                            $data = $user->get(['photo', 'email']);
-                        }
-                    }
-                    $avatar = empty($data['photo'])
-                        ? 'https://www.gravatar.com/avatar/' . md5(strtolower($data['email'])) . '?d=mm&s=' . $size
-                        : $data['photo'];
+                $fenom->addModifier('avatar', function ($data, $size = 30, $tpl = null) use ($app) {
+                    return $app->avatar($data, $size, $tpl);
+                });
 
-                    return $avatar;
+                $fenom->addModifier('processor', function ($action, array $data = []) use ($app) {
+                    return $app->runProcessor($action, $data);
                 });
 
                 $fenom->addModifier('website', function ($input, $options = 'www.') {
@@ -273,6 +270,163 @@ class App
         return $this->modx->getOption('app_mail_queue', null, false)
             ? $queue->save()
             : $queue->send();
+    }
+
+
+    /**
+     * @param $data
+     * @param int $size
+     * @param null $tpl
+     *
+     * @return mixed
+     */
+    public function avatar($data, $size = 30, $tpl = null)
+    {
+        if (is_numeric($data)) {
+            $data = [];
+            if ($user = $this->modx->getObject('modUserProfile', ['internalKey' => (int)$data])) {
+                $data = $user->get(['photo', 'email']);
+                $data['id'] = $user->id;
+            }
+        }
+        if (empty($tpl)) {
+            $tpl = '<div class="avatar"><a href="{link}"><img src="{image1}" width="{width}" srcset="{image2} 2x" alt="{alt}"></a></div>';
+        }
+        $id = !empty($data['createdby'])
+            ? $data['createdby']
+            : $data['id'];
+
+        if (!$image = $this->pdoTools->getStore($id . '-' . $size, 'avatars')) {
+            $image = $this->getAvatar($data, [$size, $size * 2]);
+            $this->pdoTools->setStore($id . '-' . $size, $image, 'avatars');
+        }
+
+        $data = [
+            '{link}' => '/users/' . ($data['usename'] ? $data['username'] : $id),
+            '{image1}' => $image[$size],
+            '{image2}' => $image[$size * 2],
+            '{width}' => $size,
+            '{alt}' => @$data['fullname'] ?: '',
+        ];
+        $avatar = str_replace(array_keys($data), array_values($data), $tpl);
+
+        return $avatar;
+    }
+
+
+    /**
+     * @param $data
+     * @param array $sizes
+     *
+     * @return array
+     */
+    public function getAvatar($data, array $sizes)
+    {
+        $path = MODX_ASSETS_PATH . $this::avatars_path;
+        $url = MODX_ASSETS_URL . $this::avatars_path;
+
+        $id = !empty($data['createdby'])
+            ? $data['createdby']
+            : $data['id'];
+        $gravatar = 'https://www.gravatar.com/avatar/' . md5(strtolower($data['email']));
+        $output = [];
+
+        $file = explode('/', $data['photo'] ?: $gravatar);
+        $file = array_pop($file);
+        $file = explode('.', $file);
+        $file = array_shift($file);
+
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
+        $user_path = $id . '/';
+        if (!is_dir($path . $user_path)) {
+            mkdir($path . $user_path);
+        }
+
+        sort($sizes);
+        $size = reset($sizes);
+        $src = '';
+        if (!$time = @filemtime($path . $user_path . $file . '-' . $size . '.jpg')) {
+            // Remove old avatars
+            if ($files = array_diff(scandir($path . $user_path), ['.', '..'])) {
+                foreach ($files as $tmp) {
+                    if (strpos($path . $user_path . $tmp, $file) === false) {
+                        @unlink($path . $user_path . $tmp);
+                    }
+                }
+            }
+            // Copy and process new
+            if (!empty($data['photo'])) {
+                $src = strpos($data['photo'], '//') === false
+                    ? MODX_BASE_PATH . ltrim(parse_url($data['photo'], PHP_URL_PATH), '/')
+                    : $data['photo'];
+            } else {
+                $image = file_get_contents($gravatar . '?d=mm&s=200');
+                foreach ($sizes as $size) {
+                    $src = $path . $user_path . $file . '-' . $size . '.jpg';
+                    file_put_contents($src, $image);
+                }
+            }
+            foreach ($sizes as $size) {
+                if ($image = $this->makeThumbnail($src, ['w' => $size, 'h' => $size])) {
+                    if (file_put_contents($path . $user_path . $file . '-' . $size . '.jpg', $image)) {
+                        $output[$size] = $url . $user_path . $file . '-' . $size . '.jpg?t=' . time();
+                    }
+                }
+            }
+        } elseif (empty($data['photo']) && time() - $time > $this::gravatars_cache) {
+            // Check cache of Gravatar
+            $headers = get_headers($gravatar . '?d=404', true);
+            if (strpos($headers[0], '200 OK') !== false && strtotime($headers['Last-Modified']) > $time) {
+                foreach ($sizes as $size) {
+                    @unlink($path . $user_path . $file . '-' . $size . '.jpg');
+                }
+
+                return $this->getAvatar($data, $sizes);
+            }
+        } else {
+            foreach ($sizes as $size) {
+                $output[$size] = $url . $user_path . $file . '-' . $size . '.jpg?t=' . $time;
+            }
+        }
+
+        return $output;
+    }
+
+
+    /**
+     * @param $src
+     * @param array $options
+     *
+     * @return bool|mixed
+     */
+    public function makeThumbnail($src, $options = [])
+    {
+        if (empty($src)) {
+            return false;
+        }
+        if (!class_exists('modPhpThumb')) {
+            /** @noinspection PhpIncludeInspection */
+            require MODX_CORE_PATH . 'model/phpthumb/modphpthumb.class.php';
+        }
+
+        /** @noinspection PhpParamsInspection */
+        $phpThumb = new modPhpThumb($this->modx);
+        $phpThumb->initialize();
+        $phpThumb->setSourceFilename($src);
+        foreach ($options as $k => $v) {
+            $phpThumb->setParameter($k, $v);
+        }
+        if ($phpThumb->GenerateThumbnail()) {
+            if ($phpThumb->RenderOutput()) {
+
+                return $phpThumb->outputImageData;
+            }
+        }
+        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Could not generate thumbnail for "' . $src . '". ' . print_r($phpThumb->debugmessages, 1));
+
+        return false;
     }
 
 

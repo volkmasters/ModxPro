@@ -6,24 +6,19 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     cssmin = require('gulp-clean-css'),
     chmod = require('gulp-chmod'),
-    concat = require('gulp-concat');
+    concat = require('gulp-concat'),
+    purify = require("gulp-purifycss"),
+    imagemin = require('gulp-imagemin');
+
 var build = './assets/';
 var assets = '../../../assets/components/modxpro/';
+var core = '../../../core/components/modxpro/';
 
 gulp.task('default', ['css', 'js']);
 
 gulp.task('watch', function () {
-    gulp.watch([build + 'scss/*.scss', build + 'scss/**/*.scss'], ['css']);
     gulp.watch([build + 'js/*.js', build + 'js/app/*.js'], ['js']);
-});
-
-gulp.task('css', function () {
-    var src = build + 'scss/*.scss';
-    var dst = assets + 'css/web/';
-    gulp.src(src)
-        .pipe(sass().on('error', sass.logError))
-        .pipe(cssmin().on('error', function(e){console.log(e)}))
-        .pipe(gulp.dest(dst));
+    gulp.watch([build + 'scss/*.scss', build + 'scss/**/*.scss'], ['css']);
 });
 
 gulp.task('js', function () {
@@ -41,6 +36,16 @@ gulp.task('js', function () {
         .pipe(uglify().on('error', function (e) {
             console.log(e);
         }))
+        .pipe(gulp.dest(dst));
+});
+
+gulp.task('css', function () {
+    var src = build + 'scss/*.scss';
+    var dst = assets + 'css/web/';
+    gulp.src(src)
+        .pipe(sass().on('error', sass.logError))
+        .pipe(purify([assets + 'js/web/**/*.js', core + 'elements/**/*.tpl']))
+        .pipe(cssmin().on('error', function (e) {console.log(e)}))
         .pipe(gulp.dest(dst));
 });
 
@@ -101,8 +106,6 @@ gulp.task('copy', function () {
         }))
         .pipe(gulp.dest(dst));
 
-    //gulp.src('./node_modules/font-awesome-pro/web-fonts-with-css/webfonts/**').pipe(gulp.dest(assets + 'fonts/'));
-
     src = [
         './node_modules/prismjs/components/prism-smarty.min.js',
         './node_modules/prismjs/components/prism-nginx.min.js',
@@ -124,4 +127,24 @@ gulp.task('copy', function () {
         .pipe(gulp.dest(dst));
 
     gulp.src('./node_modules/fancybox/dist/img/**').pipe(gulp.dest(assets + 'img/fancybox/'))
+});
+
+gulp.task('images', function () {
+    var src = assets + 'img/**/*.{jpg,jpeg,png,gif}';
+    var dst = assets + 'img/';
+    gulp.src(src)
+        .pipe(
+            imagemin({optimizationLevel: 5, progressive: true, interlaced: true, verbose: true})
+                .on('error', function (e) {console.log(e.message)}))
+        .pipe(gulp.dest(dst));
+});
+
+gulp.task('avatars', function () {
+    var src = assets + '../../../assets/images/avatars/**/*.jpg';
+    var dst = assets + '../../../assets/images/avatars/';
+    gulp.src(src)
+        .pipe(
+            imagemin({optimizationLevel: 5, progressive: true, interlaced: true, verbose: true})
+                .on('error', function (e) {console.log(e.message)}))
+        .pipe(gulp.dest(dst))
 });

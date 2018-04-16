@@ -35,22 +35,22 @@
     </div>
 
     {if $subpage == 'comments'}
-        {var $res = $.App->runProcessor('community/comment/getlist', [
+        {var $res = 'community/comment/getlist' | processor : [
             'limit' => 10,
             'getPages' => true,
             'favorites' => $user.id,
-        ])}
+        ]}
         <div class="comments-list">
             {$res.results}
             {include 'file:chunks/_pagination.tpl' res=$res}
         </div>
     {else}
-        {var $res = $.App->runProcessor('community/topic/getlist', [
+        {var $res = 'community/topic/getlist' | processor : [
             'limit' => 10,
             'showSection' => true,
             'getPages' => true,
             'favorites' => $user.id,
-        ])}
+        ]}
         <div class="topics-list">
             {$res.results}
             {include 'file:chunks/_pagination.tpl' res=$res}

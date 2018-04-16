@@ -1,12 +1,7 @@
 {foreach $results as $item}
     <div class="topic-row">
         <div class="d-flex no-gutters align-items-center">
-            <div class="avatar">
-                <a href="/users/{$item.usename ? $item.username : $item.createdby}">
-                    <img src="{['photo' => $item.photo, 'email' => $item.email] | avatar : 25}" width="25"
-                         srcset="{['photo' => $item.photo, 'email' => $item.email] | avatar : 50} 2x"/>
-                </a>
-            </div>
+            {$item | avatar : 25}
             <div class="ml-2 created">
                 <div class="author">
                     <a href="/users/{$item.usename ? $item.username : $item.createdby}">{$item.fullname}</a>
@@ -14,7 +9,7 @@
                 <div class="date">{$item.createdon | dateago}</div>
             </div>
         </div>
-        <a href="/{$item.section_uri}/{$item.id}" class="link">
+        <a href="/{$item.uri}" class="link">
             <div class="text">
                 <div>{$item.pagetitle}</div>
                 {$item.introtext | strip_tags | truncate : 150}
@@ -26,10 +21,10 @@
             {else}
                 <a href="/{$item.section_uri}">
                     <i class="far fa-folder-open mr-1"></i>
-                    {$item.section_pagetitle}
+                    {$item.section_title}
                 </a>
                 <i class="far fa-eye ml-3"></i><span class="ml-1">{$item.views}</span>
-                <a href="/{$item.section_uri}/{$item.id}#comments">
+                <a href="/{$item.uri}#comments">
                     <i class="far fa-comment ml-3"></i><span class="ml-1">{$item.comments}</span>
                 </a>
             {/if}

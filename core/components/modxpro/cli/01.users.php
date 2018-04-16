@@ -57,6 +57,13 @@ if ($stmt = $pdo->prepare($c->toSQL())) {
     }
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $item = $modx->newObject('modUserProfile');
+        $row['photo'] = str_replace('https://id.modx.pro', '', $row['photo']);
+        if (strpos($row['photo'], '//') !== false) {
+            $row['photo'] = '';
+        }
+        if (strpos($row['photo'], '/en/') === 0) {
+            $row['photo'] = preg_replace('#^/en/#', '/', $row['photo']);
+        }
         if ($extended = json_decode($row['extended'], true)) {
             $row['work'] = !empty($extended['work']);
             $row['feedback'] = !empty($extended['feedback']);

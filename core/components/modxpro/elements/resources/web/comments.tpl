@@ -1,6 +1,6 @@
-{var $res = $.App->runProcessor('community/comment/getlist', [
+{var $res = 'community/comment/getlist' | processor : [
     'limit' => 20,
-])}
+]}
 
 {include 'file:chunks/_banner.tpl'}
 <div class="comments-list">

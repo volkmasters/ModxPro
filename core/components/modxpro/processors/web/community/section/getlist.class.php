@@ -6,7 +6,7 @@ class SectionGetListProcessor extends AppGetListProcessor
 {
     public $objectType = 'comSection';
     public $classKey = 'comSection';
-    public $defaultSortField = 'publishedon';
+    public $defaultSortField = 'comSection.publishedon';
     public $defaultSortDirection = 'desc';
 
     public $getPages = true;
@@ -28,6 +28,8 @@ class SectionGetListProcessor extends AppGetListProcessor
             $this->classKey . '.template' => 3,
         ];
 
+        $c->groupby('comSection.id');
+
         if ($tmp = $this->getProperty('where', [])) {
             $where = array_merge($where, $tmp);
         }
@@ -47,10 +49,10 @@ class SectionGetListProcessor extends AppGetListProcessor
      */
     public function prepareQueryAfterCount(xPDOQuery $c)
     {
-        $c->leftJoin('comTotal', 'Total', 'Total.id = comSection.id AND Total.class = "comSection"');
+        $c->leftJoin('comTopic', 'Topics');
 
         $c->select('comSection.id, comSection.pagetitle, comSection.uri, comSection.description');
-        $c->select('Total.comments, Total.views, Total.topics');
+        $c->select('COUNT(Topics.id) as topics, SUM(Topics.comments) as comments, SUM(Topics.views) as views');
 
         return $c;
     }

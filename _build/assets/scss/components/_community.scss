@@ -129,13 +129,14 @@
         span[class] { font-weight: bold; }
       }
       .star {
-        a::before {
+        a { color: $gray-dark; }
+        div::before {
           font-family: 'Font Awesome 5 Regular';
           content: '\f005';
           display: none;
         }
         &.active {
-          a::before {
+          div::before {
             font-family: 'Font Awesome 5 Solid';
           }
         }

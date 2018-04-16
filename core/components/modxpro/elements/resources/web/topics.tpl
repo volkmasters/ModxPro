@@ -1,6 +1,6 @@
-{var $res = $.App->runProcessor('community/topic/getarchive', [
+{var $res = 'community/topic/getarchive' | processor : [
     'limit' => 100,
-])}
+]}
 
 {include 'file:chunks/_banner.tpl'}
 <div class="topics-list">

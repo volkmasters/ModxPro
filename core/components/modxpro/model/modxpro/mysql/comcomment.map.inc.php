@@ -15,6 +15,7 @@ $xpdo_meta_map['comComment']= array (
     'text' => '',
     'raw' => '',
     'ip' => '0.0.0.0',
+    'stars' => 0,
     'rating' => 0,
     'rating_plus' => 0,
     'rating_minus' => 0,
@@ -25,6 +26,7 @@ $xpdo_meta_map['comComment']= array (
     'deleted' => 0,
     'deletedon' => NULL,
     'deletedby' => NULL,
+    'context' => NULL,
   ),
   'fieldMeta' => 
   array (
@@ -65,6 +67,15 @@ $xpdo_meta_map['comComment']= array (
       'phptype' => 'string',
       'null' => false,
       'default' => '0.0.0.0',
+    ),
+    'stars' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'phptype' => 'integer',
+      'attributes' => 'unsigned',
+      'null' => true,
+      'default' => 0,
     ),
     'rating' => 
     array (
@@ -139,6 +150,13 @@ $xpdo_meta_map['comComment']= array (
       'phptype' => 'integer',
       'attributes' => 'unsigned',
       'null' => false,
+    ),
+    'context' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '255',
+      'phptype' => 'string',
+      'null' => true,
     ),
   ),
   'indexes' => 
@@ -257,24 +275,25 @@ $xpdo_meta_map['comComment']= array (
         ),
       ),
     ),
-  ),
-  'composites' => 
-  array (
-    'Total' => 
+    'stars' => 
     array (
-      'class' => 'comTotal',
-      'local' => 'id',
-      'foreign' => 'id',
-      'cardinality' => 'one',
-      'owner' => 'local',
-      'criteria' => 
+      'alias' => 'stars',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
       array (
-        'foreign' => 
+        'stars' => 
         array (
-          'class' => 'comComment',
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
         ),
       ),
     ),
+  ),
+  'composites' => 
+  array (
     'Stars' => 
     array (
       'class' => 'comStar',

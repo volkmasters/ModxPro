@@ -13,8 +13,12 @@ define('app/community', ['app'], function (App) {
 
                 $star.toggleClass('active');
                 App.Utils.request({action: 'community/star/' + type, id: id}, function(res) {
-                    if (res.success && type == 'topic') {
-                        $star.find('.placeholder').text(res.object['stars']);
+                    if (res.success) {
+                        var stars = res.object['stars'];
+                        if (!stars) {
+                            stars = '';
+                        }
+                        $star.find('.placeholder').text(stars);
                     }
                 });
             });

@@ -1,8 +1,8 @@
 {include 'file:chunks/users/_header.tpl' profile=$profile author=$author}
-{var $res = $.App->runProcessor('community/comment/getlist', [
+{var $res = 'community/comment/getlist' | processor : [
     'limit' => 20,
     'user' => $user.id,
-])}
+]}
 
 <div class="user-content">
     <div class="comments-list">

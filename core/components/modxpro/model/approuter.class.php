@@ -33,6 +33,7 @@ class AppRouter
                 $r->addRoute(['GET', 'POST'], '/oauth2[/{action}]', 'authPage');
                 $r->addRoute('GET', '/me', 'userProfile');
             } else {
+                $r->addRoute('GET', '/{mode:popular|best|all}', 'mainPage');
                 $r->addGroup('/users/{user}', function (FastRoute\RouteCollector $r) {
                     $r->addRoute('GET', '', 'userPage');
                     $r->addRoute('GET', '/{page:topics|comments|favorites}[/{subpage:drafts|comments}]', 'userPage');
@@ -109,6 +110,52 @@ class AppRouter
 
 
     /**
+     * @param $mode
+     */
+    public function mainPage($mode)
+    {
+        /** @var App $App */
+        $App = $this->modx->getService('App');
+        $mode = array_shift($mode);
+        $data = [
+            'mode' => $mode,
+        ];
+
+        $params = [
+            'limit' => 10,
+            'showSection' => true,
+        ];
+        $month = date('Y-m- H:i:s', time() - (30 * 86400));
+        switch ($mode) {
+            case 'popular':
+                $params = array_merge($params, [
+                    'sort' => 'views',
+                    'dir' => 'desc',
+                    'where' => [
+                        'createdon:>' => $month,
+                    ],
+                ]);
+                break;
+            case 'best':
+                $params = array_merge($params, [
+                    'sort' => 'rating desc,createdon',
+                    'dir' => 'desc',
+                    'where' => [
+                        'rating:>' => 0,
+                        'createdon:>' => $month,
+                    ],
+                ]);
+                break;
+        }
+        $data['res'] = $App->runProcessor('community/topic/getlist', $params);
+
+        $this->modx->resource = $this->modx->getObject('modResource', $this->modx->getOption('site_start'));
+        $this->modx->resource->set('content', $this->pdoTools->getChunk('@INLINE ' . $this->modx->resource->content, $data));
+        $this->modx->request->prepareResponse();
+    }
+
+
+    /**
      * @param $username
      *
      * @return bool|modUser
@@ -168,7 +215,9 @@ class AppRouter
         $this->modx->resource = $this->modx->getObject('modResource', $this->modx->getOption('users_id'));
 
         // Prepare data
-        $author = $this->modx->getObject('comAuthor', $user->id);
+        if (!$author = $this->modx->getObject('comAuthor', $user->id)) {
+            return;
+        }
         $data = [
             'subpage' => $vars['subpage'],
             'user' => $user->get(['id', 'username', 'external_key']),
@@ -348,13 +397,11 @@ class AppRouter
     public function viewTopic($vars)
     {
         $topic = null;
-        $c = $this->modx->newQuery('comTopic', ['id' => $vars['id']]);
+        $c = $this->modx->newQuery('comTopic', ['id' => (int)$vars['id']]);
         $c->innerJoin('modResource', 'Section');
         $c->innerJoin('modUserProfile', 'UserProfile');
-        $c->innerJoin('comTotal', 'Total');
+        $c->select($this->modx->getSelectColumns('comTopic', 'comTopic'));
         $c->select($this->modx->getSelectColumns('modResource', 'Section', 'section_', ['pagetitle', 'context_key', 'uri']));
-        $c->select($this->modx->getSelectColumns('comTopic', 'comTopic', '', ['id', 'pagetitle', 'content', 'published', 'createdby', 'createdon']));
-        $c->select($this->modx->getSelectColumns('comTotal', 'Total', '', ['comments', 'views', 'stars', 'rating', 'rating_plus', 'rating_minus']));
         $c->select($this->modx->getSelectColumns('modUserProfile', 'UserProfile', '', ['photo', 'email', 'fullname']));
         if ($c->prepare() && $c->stmt->execute()) {
             $topic = $c->stmt->fetch(PDO::FETCH_ASSOC);

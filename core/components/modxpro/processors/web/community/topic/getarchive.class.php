@@ -24,8 +24,7 @@ class TopicGetArchiveProcessor extends AppGetListProcessor
         $c->leftJoin('comSection', 'Section');
         $where = [
             $this->classKey . '.published' => true,
-            $this->classKey . '.deleted' => false,
-            'Section.context_key' => $this->modx->context->key,
+            $this->classKey . '.context' => $this->modx->context->key,
         ];
         if ($tmp = $this->getProperty('where', [])) {
             $where = array_merge($where, $tmp);
@@ -43,15 +42,8 @@ class TopicGetArchiveProcessor extends AppGetListProcessor
      */
     public function prepareQueryAfterCount(xPDOQuery $c)
     {
-        $c->select('comTopic.id, comTopic.pagetitle, comTopic.createdby, comTopic.createdon');
-        $c->leftJoin('comTotal', 'Total', 'Total.id = comTopic.id AND Total.class = "comTopic"');
-        //$c->leftJoin('modUser', 'User');
-        //$c->leftJoin('modUserProfile', 'UserProfile');
-
-        $c->select($this->modx->getSelectColumns('comSection', 'Section', 'section_', ['pagetitle', 'uri']));
-        $c->select('Total.comments, Total.views');
-        //$c->select('User.username');
-        //$c->select('UserProfile.photo, UserProfile.email, UserProfile.fullname, UserProfile.usename');
+        $c->select('comTopic.id, comTopic.pagetitle, comTopic.createdby, comTopic.createdon, comTopic.comments, comTopic.views, comTopic.uri');
+        $c->select('Section.pagetitle as section_title, Section.uri as section_uri');
 
         return $c;
     }

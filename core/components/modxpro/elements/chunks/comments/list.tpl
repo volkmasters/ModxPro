@@ -4,12 +4,7 @@
             <div class="comment-meta d-flex flex-wrap no-gutters align-items-center item-data" data-id="{$item.id}" data-type="comment">
                 <div class="col-12 col-md-6 d-flex align-items-center justify-content-center justify-content-md-start">
                     {if !$user}
-                        <div class="avatar">
-                            <a href="/users/{$item.usename ? $item.username : $item.createdby}">
-                                <img src="{['photo' => $item.photo, 'email' => $item.email] | avatar : 40}" width="40"
-                                     srcset="{['photo' => $item.photo, 'email' => $item.email] | avatar : 80} 2x"/>
-                            </a>
-                        </div>
+                        {$item | avatar : 40}
                         <div class="ml-2 created">
                             <div class="author">
                                 <a href="/users/{$item.usename ? $item.username : $item.createdby}">{$item.fullname}</a>
@@ -29,11 +24,15 @@
                                 <i class="far fa-hashtag"></i>
                             </a>
                         </div>
-                        {if $_modx->user.id}
-                            <div class="star ml-3{if $item.star} active{/if}">
-                                <a href="#" class="placeholder"></a>
-                            </div>
-                        {/if}
+                        <div class="star ml-3{if $item.star} active{/if}">
+                            {if $_modx->isAuthenticated()}
+                                <a href="#">
+                                    <div> <span class="placeholder">{$item.stars ?: ''}</span></div>
+                                </a>
+                            {else}
+                                <div> {$item.stars ?: ''}</div>
+                            {/if}
+                        </div>
                     </div>
                     <div class="ml-md-5">
                         <div class="rating">

@@ -16,15 +16,15 @@ $xpdo_meta_map['comAuthor']= array (
     'visitedon' => NULL,
     'topics' => NULL,
     'comments' => NULL,
-    'views' => NULL,
-    'votes_topics' => NULL,
-    'votes_comments' => NULL,
-    'stars_topics' => NULL,
-    'stars_comments' => NULL,
-    'votes_topics_up' => NULL,
-    'votes_topics_down' => NULL,
-    'votes_comments_up' => NULL,
-    'votes_comments_down' => NULL,
+    'views' => 0,
+    'votes_topics' => 0.0,
+    'votes_comments' => 0.0,
+    'stars_topics' => 0,
+    'stars_comments' => 0,
+    'votes_topics_up' => 0,
+    'votes_topics_down' => 0,
+    'votes_comments_up' => 0,
+    'votes_comments_down' => 0,
   ),
   'fieldMeta' => 
   array (
@@ -79,6 +79,7 @@ $xpdo_meta_map['comAuthor']= array (
       'phptype' => 'integer',
       'attributes' => 'unsigned',
       'null' => true,
+      'default' => 0,
     ),
     'votes_topics' => 
     array (
@@ -86,6 +87,7 @@ $xpdo_meta_map['comAuthor']= array (
       'precision' => '12,2',
       'phptype' => 'float',
       'null' => true,
+      'default' => 0.0,
     ),
     'votes_comments' => 
     array (
@@ -93,6 +95,7 @@ $xpdo_meta_map['comAuthor']= array (
       'precision' => '12,2',
       'phptype' => 'float',
       'null' => true,
+      'default' => 0.0,
     ),
     'stars_topics' => 
     array (
@@ -101,6 +104,7 @@ $xpdo_meta_map['comAuthor']= array (
       'phptype' => 'integer',
       'attributes' => 'unsigned',
       'null' => true,
+      'default' => 0,
     ),
     'stars_comments' => 
     array (
@@ -109,6 +113,7 @@ $xpdo_meta_map['comAuthor']= array (
       'phptype' => 'integer',
       'attributes' => 'unsigned',
       'null' => true,
+      'default' => 0,
     ),
     'votes_topics_up' => 
     array (
@@ -117,6 +122,7 @@ $xpdo_meta_map['comAuthor']= array (
       'phptype' => 'integer',
       'attributes' => 'unsigned',
       'null' => true,
+      'default' => 0,
     ),
     'votes_topics_down' => 
     array (
@@ -125,6 +131,7 @@ $xpdo_meta_map['comAuthor']= array (
       'phptype' => 'integer',
       'attributes' => 'unsigned',
       'null' => true,
+      'default' => 0,
     ),
     'votes_comments_up' => 
     array (
@@ -133,6 +140,7 @@ $xpdo_meta_map['comAuthor']= array (
       'phptype' => 'integer',
       'attributes' => 'unsigned',
       'null' => true,
+      'default' => 0,
     ),
     'votes_comments_down' => 
     array (
@@ -141,6 +149,7 @@ $xpdo_meta_map['comAuthor']= array (
       'phptype' => 'integer',
       'attributes' => 'unsigned',
       'null' => true,
+      'default' => 0,
     ),
   ),
   'indexes' => 

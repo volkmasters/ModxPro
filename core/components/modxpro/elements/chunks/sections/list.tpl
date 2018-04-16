@@ -7,13 +7,13 @@
         <div class="topic-content">
             {$item.description}
             <ul class="last-topics">
-                {var $res = $.App->runProcessor('community/topic/getlist', [
+                {var $res = 'community/topic/getlist' | processor : [
                     'limit' => 5,
                     'fastMode' => true,
                     'getPages' => false,
                     'where' => ['parent' => $item.id],
                     'tpl' => '@FILE chunks/sections/topics.tpl ',
-                ])}
+                ]}
                 {$res.results}
             </ul>
         </div>

@@ -24,13 +24,8 @@ class CommunityStarTopicProcessor extends modProcessor
         $key = [
             'id' => (int)$this->getProperty('id'),
             'class' => 'comTopic',
+            'createdby' => $this->modx->user->id
         ];
-        /** @var comTotal $total */
-        if (!$total = $this->modx->getObject('comTotal', $key)) {
-            $total = $this->modx->newObject('comTotal', $key);
-            $total->fromArray($key, '', true, true);
-        }
-        $key['createdby'] = $this->modx->user->id;
 
         /** @var comStar $star */
         if (!$star = $this->modx->getObject($this->classKey, $key)) {
@@ -38,20 +33,20 @@ class CommunityStarTopicProcessor extends modProcessor
             $star->fromArray($key, '', true, true);
             $star->set('createdon', date('Y-m-d H:i:s'));
             /** @var comTopic $object */
-            if ($object = $this->modx->getObject('comTopic', $key['id'])) {
+            if ($object = $this->modx->getObject('Topic', $key['id'])) {
                 $star->set('owner', $object->createdby);
             }
-            if ($star->save()) {
-                $total->set('stars', $total->get('stars') + 1);
-            }
+            $star->save();
         } else {
-            if ($star->remove()) {
-                $total->set('stars', $total->get('stars') - 1);
-            }
+            $star->remove();
         }
-        $total->save();
 
-        return $this->success('', $total->get(['stars']));
+        if ($topic = $star->getOne('Topic')) {
+            $topic->set('stars', $this->modx->getCount('comStar', ['id' => $topic->id, 'class' => 'comTopic']));
+            $topic->save();
+        }
+
+        return $this->success('', $topic ? $topic->get(['stars']) : 0);
     }
 
 }

@@ -21,6 +21,7 @@ $xpdo_meta_map['comThread']= array (
     'comment_last' => NULL,
     'comment_time' => NULL,
     'comments' => NULL,
+    'context' => NULL,
   ),
   'fieldMeta' => 
   array (
@@ -106,6 +107,13 @@ $xpdo_meta_map['comThread']= array (
       'attributes' => 'unsigned',
       'null' => true,
     ),
+    'context' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '255',
+      'phptype' => 'string',
+      'null' => true,
+    ),
   ),
   'indexes' => 
   array (
@@ -189,6 +197,22 @@ $xpdo_meta_map['comThread']= array (
         ),
       ),
     ),
+    'context' => 
+    array (
+      'alias' => 'context',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'context' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
   ),
   'composites' => 
   array (
@@ -199,21 +223,6 @@ $xpdo_meta_map['comThread']= array (
       'foreign' => 'thread',
       'cardinality' => 'many',
       'owner' => 'local',
-    ),
-    'Total' => 
-    array (
-      'class' => 'comTotal',
-      'local' => 'id',
-      'foreign' => 'id',
-      'cardinality' => 'one',
-      'owner' => 'local',
-      'criteria' => 
-      array (
-        'foreign' => 
-        array (
-          'class' => 'comThread',
-        ),
-      ),
     ),
   ),
   'aggregates' => 
