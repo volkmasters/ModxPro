@@ -29,6 +29,6 @@
 </ul>
 <div class="topics-list">
     {$res.results}
-
+    {include 'file:chunks/promo/page.tpl'}
     {include 'file:chunks/_pagination.tpl' res=$res}
 </div>

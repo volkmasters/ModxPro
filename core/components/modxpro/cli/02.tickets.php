@@ -81,7 +81,7 @@ if ($stmt = $pdo->prepare($c->toSQL())) {
 
 // Copy images
 shell_exec('rm -rf ~/www/assets/images/tickets');
-shell_exec('scp -r s264@h1.modhost.pro:/home/s264/www/assets/images/tickets ~/www/assets/images/');
+shell_exec('scp -r s264@h10.modhost.pro:/home/s264/www/assets/images/tickets ~/www/assets/images/');
 
 // Threads
 $c = $modx->newQuery('TicketThread');

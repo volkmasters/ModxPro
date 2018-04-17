@@ -79,7 +79,7 @@ if ($stmt = $pdo->prepare($c->toSQL())) {
 
 // Copy avatars
 shell_exec('rm -rf ~/www/assets/images/users');
-shell_exec('scp -r s264@h1.modhost.pro:/home/s264/www/assets/images/users ~/www/assets/images/');
+shell_exec('scp -r s264@h10.modhost.pro:/home/s264/www/assets/images/users ~/www/assets/images/');
 
 // Groups
 $c = $modx->newQuery('modUserGroupMember');

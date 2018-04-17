@@ -28,6 +28,10 @@ input {
   }
 }
 
+img {
+  max-width: 100%;
+}
+
 @include media-breakpoint-down(sm) {
   ul {
     padding-left: 20px;

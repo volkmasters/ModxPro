@@ -331,6 +331,15 @@ class App
         $gravatar = 'https://www.gravatar.com/avatar/' . md5(strtolower($data['email']));
         $output = [];
 
+        // Download of images from Gravatar is still slow, so disable it
+        if (empty($data['photo'])) {
+            foreach ($sizes as $size) {
+                $output[$size] = $gravatar . '?d=mm&s=' . $size;
+            }
+
+            return $output;
+        }
+
         $file = explode('/', $data['photo'] ?: $gravatar);
         $file = array_pop($file);
         $file = explode('.', $file);
@@ -384,6 +393,12 @@ class App
                 }
 
                 return $this->getAvatar($data, $sizes);
+            } else {
+                $time = time();
+                foreach ($sizes as $size) {
+                    touch($path . $user_path . $file . '-' . $size . '.jpg', $time);
+                    $output[$size] = $url . $user_path . $file . '-' . $size . '.jpg?t=' . $time;
+                }
             }
         } else {
             foreach ($sizes as $size) {

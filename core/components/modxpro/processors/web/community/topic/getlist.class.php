@@ -35,7 +35,7 @@ class TopicGetListProcessor extends AppGetListProcessor
             if ($q->prepare() && $q->stmt->execute()) {
                 $this->modx->queryTime += microtime(true) - $tstart;
                 $this->modx->executedQueries++;
-                $where[$this->classKey . '.id:IN'] = $q->stmt->fetchAll(PDO::FETCH_COLUMN);
+                $where[$this->classKey . '.id:IN'] = $q->stmt->fetchAll(PDO::FETCH_COLUMN) ?: -1;
             }
         } else {
             $where['context'] = $this->modx->context->key;

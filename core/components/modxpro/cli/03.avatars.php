@@ -11,7 +11,7 @@ $c->innerJoin('modUserProfile', 'Profile');
 $c->select('modUser.id, Profile.email, Profile.photo');
 if ($c->prepare() && $c->stmt->execute()) {
     while ($row = $c->stmt->fetch(PDO::FETCH_ASSOC)) {
-        $App->getAvatar($row, [25, 30, 40, 48, 64, 80]);
+        $App->getAvatar($row, [25, 50, 30, 60, 40, 80, 48, 96, 64, 128, 160]);
     }
     shell_exec('gulp avatars --gulpfile ~/www/Extras/ModxPro/_build/gulpfile.js');
 }

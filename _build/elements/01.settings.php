@@ -130,4 +130,18 @@ return [
         'area' => 'app_main',
         'namespace' => 'modxpro',
     ],
+    'app_slack_key' => [
+        'key' => 'app_slack_key',
+        'xtype' => 'textfield',
+        'value' => '',
+        'area' => 'app_main',
+        'namespace' => 'modxpro',
+    ],
+    'app_slack_service' => [
+        'key' => 'app_slack_service',
+        'xtype' => 'textfield',
+        'value' => 'https://modstore.slack.com/api/',
+        'area' => 'app_main',
+        'namespace' => 'modxpro',
+    ],
 ];

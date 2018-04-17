@@ -10,6 +10,7 @@ define('app', [
      * @property Profile
      * @property Users
      * @property User
+     * @property Slack
      * @property Community
      */
     var App = {
