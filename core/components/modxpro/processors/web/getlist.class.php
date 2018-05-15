@@ -222,6 +222,8 @@ class AppGetListProcessor extends modObjectGetListProcessor
 
         $output = [
             'success' => !empty($array),
+            'start' => $this->getProperty('start'),
+            'limit' => $this->getProperty('limit'),
             'total' => $count,
             'results' => $array,
         ];
@@ -238,9 +240,19 @@ class AppGetListProcessor extends modObjectGetListProcessor
             );
         }
 
-        if ($this->getPages && $limit = $this->getProperty('limit')) {
-            $paginator = new Paginator($count, $limit, $this->_page, '?page=(:num)');
-            $output['pages'] = $paginator->getPages();
+        if ($this->getPages && $output['limit']) {
+            $request = $_REQUEST;
+            unset($request['page'], $request[$this->modx->getOption('request_param_alias', null, 'q')]);
+
+            $paginator = new Paginator($count, $output['limit'], $this->_page, '?page=(:num)');
+            $pages = $paginator->getPages();
+            foreach ($pages as &$page) {
+                $page['isActive'] = $page['num'] == $this->_page || (!$this->_page && $page['num'] == 1);
+                if (!empty($request)) {
+                    $page['url'] .= '&' . http_build_query($request);
+                }
+            }
+            $output['pages'] = $pages;
         }
 
         return $output;

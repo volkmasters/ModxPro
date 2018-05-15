@@ -3,6 +3,7 @@
         "nikic/fast-route": "^1.2",
         "pelago/emogrifier": "^2.0",
         "bshaffer/oauth2-server-php": "^1.10",
-        "jasongrimes/paginator": "^1.0"
+        "jasongrimes/paginator": "^1.0",
+        "foolz/sphinxql-query-builder": "^1.2"
     }
 }
