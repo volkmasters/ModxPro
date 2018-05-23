@@ -57,6 +57,13 @@ if ($stmt = $pdo->prepare($c->toSQL())) {
     }
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $item = $modx->newObject('modUserProfile');
+        $row['photo'] = str_replace('https://id.modx.pro', '', $row['photo']);
+        if (strpos($row['photo'], '//') !== false) {
+            $row['photo'] = '';
+        }
+        if (strpos($row['photo'], '/en/') === 0) {
+            $row['photo'] = preg_replace('#^/en/#', '/', $row['photo']);
+        }
         if ($extended = json_decode($row['extended'], true)) {
             $row['work'] = !empty($extended['work']);
             $row['feedback'] = !empty($extended['feedback']);
@@ -72,7 +79,7 @@ if ($stmt = $pdo->prepare($c->toSQL())) {
 
 // Copy avatars
 shell_exec('rm -rf ~/www/assets/images/users');
-shell_exec('scp -r s264@h1.modhost.pro:/home/s264/www/assets/images/users ~/www/assets/images/');
+shell_exec('scp -r s264@h10.modhost.pro:/home/s264/www/assets/images/users ~/www/assets/images/');
 
 // Groups
 $c = $modx->newQuery('modUserGroupMember');

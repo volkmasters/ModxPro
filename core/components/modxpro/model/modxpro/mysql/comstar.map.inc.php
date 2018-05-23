@@ -123,4 +123,23 @@ $xpdo_meta_map['comStar']= array (
       ),
     ),
   ),
+  'aggregates' => 
+  array (
+    'Topic' => 
+    array (
+      'class' => 'comTopic',
+      'local' => 'id',
+      'foreign' => 'id',
+      'cardinality' => 'one',
+      'owner' => 'foreign',
+    ),
+    'Comment' => 
+    array (
+      'class' => 'comComment',
+      'local' => 'id',
+      'foreign' => 'id',
+      'cardinality' => 'one',
+      'owner' => 'foreign',
+    ),
+  ),
 );

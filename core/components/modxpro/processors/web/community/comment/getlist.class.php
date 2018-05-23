@@ -34,34 +34,8 @@ class CommentGetListProcessor extends AppGetListProcessor
                 $this->modx->executedQueries++;
                 $where[$this->classKey . '.id:IN'] = $q->stmt->fetchAll(PDO::FETCH_COLUMN);
             }
-        } elseif ($topic = (int)$this->getProperty('topic')) {
-            // Select only comments from current topic
-            $q = $this->modx->newQuery('comThread', ['topic' => $topic]);
-            $q->select('id');
-            $tstart = microtime(true);
-            if ($q->prepare() && $q->stmt->execute()) {
-                $this->modx->queryTime += microtime(true) - $tstart;
-                $this->modx->executedQueries++;
-                $where[$this->classKey . '.thread'] = (int)$q->stmt->fetchColumn();
-
-            }
         } else {
-            // Select only comments from current context
-            $q = $this->modx->newQuery('comThread');
-            $q->leftJoin('comTopic', 'Topic');
-            $q->leftJoin('comSection', 'Section', 'Section.id = Topic.parent');
-            $q->where([
-                'Section.context_key' => $this->modx->context->key,
-                'Topic.published' => true,
-                'Topic.deleted' => false,
-            ]);
-            $q->select('comThread.id');
-            $tstart = microtime(true);
-            if ($q->prepare() && $q->stmt->execute()) {
-                $this->modx->queryTime += microtime(true) - $tstart;
-                $this->modx->executedQueries++;
-                $where[$this->classKey . '.thread:IN'] = $q->stmt->fetchAll(PDO::FETCH_COLUMN);
-            }
+            $where[$this->classKey . '.context'] = $this->modx->context->key;
         }
 
         if ($tmp = $this->getProperty('where', [])) {
@@ -71,19 +45,13 @@ class CommentGetListProcessor extends AppGetListProcessor
         if ($where) {
             $c->where($where);
         }
-
+        /*
         if ($query = $this->getProperty('query')) {
-            if (is_numeric($query)) {
-                $c->where([
-                    $this->classKey . '.createdby' => (int)$query,
-                ]);
-            } else {
-                $query = trim($query);
-                $c->where([
-                    $this->classKey . '.text:LIKE' => "%{$query}%",
-                ]);
-            }
-        }
+            $query = trim($query);
+            $c->where([
+                $this->classKey . '.text:LIKE' => "%{$query}%",
+            ]);
+        }*/
 
         return $c;
     }
@@ -105,7 +73,7 @@ class CommentGetListProcessor extends AppGetListProcessor
             $c->leftJoin('comStar', 'Star', 'Star.id = comComment.id AND Star.class = "comComment" AND Star.createdby = ' . $this->modx->user->id);
             $c->select('Star.id as star');
         }
-        $c->select('comComment.id, comComment.text, comComment.createdon, comComment.createdby, comComment.rating, comComment.rating_plus, comComment.rating_minus, comComment.thread');
+        $c->select($this->modx->getSelectColumns($this->classKey, $this->classKey));
         $c->select('Thread.topic, Thread.comments');
         $c->select('User.username');
         $c->select('UserProfile.fullname, UserProfile.photo, UserProfile.email, UserProfile.usename');

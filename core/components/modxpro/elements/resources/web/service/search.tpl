@@ -1,6 +1,7 @@
 <form method="get" action="/search">
     <div class="input-group">
-        <input type="text" name="query" class="form-control" placeholder="{$.en ? 'Search' : 'Поиск'}">
+        <input type="text" name="query" class="form-control" value="{$.get.query | escape}"
+               placeholder="{$.en ? 'Search' : 'Поиск'}">
         <div class="input-group-append">
             <button class="input-group-text">
                 <i class="far fa-search"></i>
@@ -9,6 +10,28 @@
     </div>
 </form>
 
-<div  class="mt-5">
-    {$.en ? 'Here will be search results' : 'Здесь будет поиск'}
-</div>
+{if $.get.query}
+    <div class="mt-5">
+        {var $res = 'search/search' | processor : [
+        'query' => $.get.query,
+        'limit' => 20,
+        ]}
+    </div>
+    <div class="topics-list">
+        <h4 class="topic-title">
+            {if $res.total}
+                {if $.en}
+                    Found {number_format($res.total, 0, '.', ' ')} {$res.total | declension : 'topic|topics'}
+                {else}
+                    {$res.total | declension : 'Найдена|Найдено|Найдено'}
+                    {number_format($res.total, 0, '.', ' ')} {$res.total | declension : 'заметка|заметки|заметок'}
+                {/if}
+            {else}
+                {$.en ? 'Nothing found' : 'Ничего не найдено'}
+            {/if}
+        </h4>
+        {$res.results}
+
+        {include 'file:chunks/_pagination.tpl' res=$res}
+    </div>
+{/if}

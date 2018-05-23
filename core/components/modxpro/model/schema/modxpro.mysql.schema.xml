@@ -102,9 +102,6 @@
 
     <object class="comSection" extends="modResource">
         <composite alias="Topics" class="comTopic" local="id" foreign="parent" cardinality="many" owner="local"/>
-        <composite alias="Total" class="comTotal" local="id" foreign="id" cardinality="one" owner="local">
-            <criteria target="foreign"><![CDATA[{"class":"comSection"}]]></criteria>
-        </composite>
     </object>
 
     <object class="comTopic" table="app_community_topics" extends="xPDOSimpleObject">
@@ -119,11 +116,17 @@
         <field key="publishedby" dbtype="int" precision="10" phptype="int" attributes="unsigned" null="true" default="0"/>
         <field key="editedon" dbtype="datetime" phptype="datetime" null="true"/>
         <field key="editedby" dbtype="int" precision="10" phptype="int" attributes="unsigned" null="true"/>
-        <field key="deleted" dbtype="tinyint" precision="1" phptype="boolean" null="true" default="0"/>
-        <field key="deletedon" dbtype="datetime" phptype="datetime" null="true"/>
-        <field key="deletedby" dbtype="int" precision="10" phptype="int" attributes="unsigned" null="true" default="0"/>
         <field key="important" dbtype="tinyint" precision="1" phptype="boolean" null="true" default="0"/>
-        <field key="properties" dbtype="text" phptype="json" null="true"/>
+        <!--<field key="properties" dbtype="text" phptype="json" null="true"/>-->
+        <field key="context" dbtype="varchar" precision="255" phptype="string" null="true"/>
+        <field key="uri" dbtype="varchar" precision="255" phptype="string" null="true"/>
+        <!--stat-->
+        <field key="comments" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
+        <field key="views" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true" default="0"/>
+        <field key="stars" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true" default="0"/>
+        <field key="rating" dbtype="smallint" precision="5" phptype="integer" null="true" default="0"/>
+        <field key="rating_plus" dbtype="smallint" precision="5" phptype="integer" null="true" attributes="unsigned"/>
+        <field key="rating_minus" dbtype="smallint" precision="5" phptype="integer" null="true" attributes="unsigned"/>
 
         <index alias="parent" name="parent" primary="false" unique="false" type="BTREE">
             <column key="parent" length="" collation="A" null="false"/>
@@ -132,9 +135,27 @@
             <column key="pagetitle" length="" collation="A" null="false"/>
         </index>
         <index alias="createdon" name="createdon" primary="false" unique="false" type="BTREE">
+            <column key="published" length="" collation="A" null="false"/>
             <column key="createdon" length="" collation="A" null="false"/>
         </index>
-        <index alias="published" name="published" primary="false" unique="false" type="BTREE">
+        <index alias="context" name="context" primary="false" unique="false" type="BTREE">
+            <column key="context" length="" collation="A" null="false"/>
+            <column key="published" length="" collation="A" null="false"/>
+        </index>
+        <index alias="comments" name="comments" primary="false" unique="false" type="BTREE">
+            <column key="comments" length="" collation="A" null="false"/>
+            <column key="published" length="" collation="A" null="false"/>
+        </index>
+        <index alias="views" name="views" primary="false" unique="false" type="BTREE">
+            <column key="views" length="" collation="A" null="false"/>
+            <column key="published" length="" collation="A" null="false"/>
+        </index>
+        <index alias="stars" name="stars" primary="false" unique="false" type="BTREE">
+            <column key="stars" length="" collation="A" null="false"/>
+            <column key="published" length="" collation="A" null="false"/>
+        </index>
+        <index alias="rating" name="rating" primary="false" unique="false" type="BTREE">
+            <column key="rating" length="" collation="A" null="false"/>
             <column key="published" length="" collation="A" null="false"/>
         </index>
 
@@ -144,9 +165,6 @@
         <aggregate alias="Section" class="modResource" local="parent" foreign="id" cardinality="one" owner="foreign"/>
         <composite alias="Thread" class="comThread" local="id" foreign="topic" cardinality="one" owner="local"/>
         <composite alias="Views" class="comView" local="id" foreign="topic_id" cardinality="many" owner="local"/>
-        <composite alias="Total" class="comTotal" local="id" foreign="id" cardinality="one" owner="local">
-            <criteria target="foreign"><![CDATA[{"class":"comTopic"}]]></criteria>
-        </composite>
         <composite alias="Stars" class="comStar" local="id" foreign="id" cardinality="many" owner="local">
             <criteria target="foreign"><![CDATA[{"class":"comTopic"}]]></criteria>
         </composite>
@@ -164,9 +182,9 @@
         <field key="comment_last" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="false"/>
         <field key="comment_time" dbtype="datetime" phptype="datetime" null="true" index="index"/>
         <field key="comments" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
-
         <!--<field key="properties" dbtype="text" phptype="json" null="true"/>
         <field key="subscribers" dbtype="text" phptype="json" null="true"/>-->
+        <field key="context" dbtype="varchar" precision="255" phptype="string" null="true"/>
 
         <index alias="key" name="key" primary="false" unique="true" type="BTREE">
             <column key="key" length="" collation="A" null="false"/>
@@ -183,12 +201,12 @@
         <index alias="closed" name="closed" primary="false" unique="false" type="BTREE">
             <column key="closed" length="" collation="A" null="false"/>
         </index>
+        <index alias="context" name="context" primary="false" unique="false" type="BTREE">
+            <column key="context" length="" collation="A" null="false"/>
+        </index>
 
         <aggregate alias="Topic" class="comTopic" local="topic" foreign="id" cardinality="one" owner="remote"/>
         <composite alias="Comments" class="comComment" local="id" foreign="thread" cardinality="many" owner="local"/>
-        <composite alias="Total" class="comTotal" local="id" foreign="id" cardinality="one" owner="local">
-            <criteria target="foreign"><![CDATA[{"class":"comThread"}]]></criteria>
-        </composite>
     </object>
 
     <object class="comComment" table="app_community_comments" extends="xPDOSimpleObject">
@@ -198,6 +216,7 @@
         <field key="text" dbtype="text" phptype="string" null="false" default=""/>
         <field key="raw" dbtype="text" phptype="string" null="false" default=""/>
         <field key="ip" dbtype="varchar" precision="16" phptype="string" null="false" default="0.0.0.0"/>
+        <field key="stars" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true" default="0"/>
         <field key="rating" dbtype="smallint" precision="5" phptype="integer" null="true" default="0"/>
         <field key="rating_plus" dbtype="smallint" precision="5" phptype="integer" null="true" default="0"/>
         <field key="rating_minus" dbtype="smallint" precision="5" phptype="integer" null="true" default="0"/>
@@ -210,6 +229,7 @@
         <field key="deletedon" dbtype="datetime" phptype="datetime" null="true"/>
         <field key="deletedby" dbtype="integer" precision="10" phptype="integer" attributes="unsigned" null="false"/>
         <!--<field key="properties" dbtype="text" phptype="json" null="true"/>-->
+        <field key="context" dbtype="varchar" precision="255" phptype="string" null="true"/>
 
         <index alias="parent" name="parent" primary="false" unique="false" type="BTREE">
             <column key="parent" length="" collation="A" null="false"/>
@@ -232,6 +252,9 @@
             <column key="createdon" length="" collation="A" null="false"/>
             <column key="createdby" length="" collation="A" null="false"/>
         </index>
+        <index alias="stars" name="stars" primary="false" unique="false" type="BTREE">
+            <column key="stars" length="" collation="A" null="false"/>
+        </index>
 
         <aggregate alias="User" class="modUser" local="createdby" foreign="id" cardinality="one" owner="foreign"/>
         <aggregate alias="UserProfile" class="modUserProfile" local="createdby" foreign="internalKey" cardinality="one"
@@ -241,61 +264,12 @@
         <aggregate alias="Children" class="comComment" local="id" foreign="parent" cardinality="many" owner="local"/>
         <!--
         <composite alias="Votes" class="comVote" local="id" foreign="id" cardinality="many" owner="local">
-            <criteria target="foreign"><![CDATA[{"class":"TicketComment"}]]></criteria>
-        </composite>
-        -->
-        <composite alias="Total" class="comTotal" local="id" foreign="id" cardinality="one" owner="local">
             <criteria target="foreign"><![CDATA[{"class":"comComment"}]]></criteria>
         </composite>
+        -->
         <composite alias="Stars" class="comStar" local="id" foreign="id" cardinality="one" owner="local">
             <criteria target="foreign"><![CDATA[{"class":"comComment"}]]></criteria>
         </composite>
-    </object>
-
-    <object class="comTotal" table="app_community_totals" extends="xPDOObject">
-        <field key="id" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="false" index="pk"/>
-        <field key="class" dbtype="varchar" precision="100" phptype="string" null="false" index="pk"/>
-        <field key="topics" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
-        <field key="comments" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
-        <field key="views" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
-        <field key="stars" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
-        <field key="rating" dbtype="smallint" precision="5" phptype="integer" null="true"/>
-        <field key="rating_plus" dbtype="smallint" precision="5" phptype="integer" null="true" attributes="unsigned"/>
-        <field key="rating_minus" dbtype="smallint" precision="5" phptype="integer" null="true" attributes="unsigned"/>
-
-        <index alias="PRIMARY" name="PRIMARY" primary="true" unique="true" type="BTREE">
-            <column key="id" length="" collation="A" null="false"/>
-            <column key="class" length="" collation="A" null="false"/>
-        </index>
-        <index alias="views" name="owner" primary="false" unique="false" type="BTREE">
-            <column key="views" length="" collation="A" null="false"/>
-        </index>
-        <index alias="comments" name="owner" primary="false" unique="false" type="BTREE">
-            <column key="comments" length="" collation="A" null="false"/>
-        </index>
-        <index alias="stars" name="owner" primary="false" unique="false" type="BTREE">
-            <column key="stars" length="" collation="A" null="false"/>
-        </index>
-        <index alias="tickets" name="owner" primary="false" unique="false" type="BTREE">
-            <column key="tickets" length="" collation="A" null="false"/>
-        </index>
-        <index alias="rating" name="owner" primary="false" unique="false" type="BTREE">
-            <column key="rating" length="" collation="A" null="false"/>
-        </index>
-
-        <aggregate alias="User" class="modUser" local="uid" foreign="id" cardinality="one" owner="foreign"/>
-        <aggregate alias="Section" class="comSection" local="id" foreign="id" cardinality="one" owner="foreign">
-            <criteria target="local"><![CDATA[{"class":"comSection"}]]></criteria>
-        </aggregate>
-        <aggregate alias="Topic" class="comTopic" local="id" foreign="id" cardinality="one" owner="foreign">
-            <criteria target="local"><![CDATA[{"class":"comTopic"}]]></criteria>
-        </aggregate>
-        <aggregate alias="Comment" class="comComment" local="id" foreign="id" cardinality="one" owner="foreign">
-            <criteria target="local"><![CDATA[{"class":"comComment"}]]></criteria>
-        </aggregate>
-        <aggregate alias="Thread" class="comThread" local="id" foreign="id" cardinality="one" owner="foreign">
-            <criteria target="local"><![CDATA[{"class":"comThread"}]]></criteria>
-        </aggregate>
     </object>
 
     <object class="comAuthor" table="app_community_authors" extends="xPDOObject">
@@ -307,17 +281,17 @@
 
         <field key="topics" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
         <field key="comments" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
-        <field key="views" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
+        <field key="views" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true" default="0"/>
 
-        <field key="votes_topics" dbtype="decimal" precision="12,2" phptype="float" null="true"/>
-        <field key="votes_comments" dbtype="decimal" precision="12,2" phptype="float" null="true"/>
-        <field key="stars_topics" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
-        <field key="stars_comments" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
+        <field key="votes_topics" dbtype="decimal" precision="12,2" phptype="float" null="true" default="0"/>
+        <field key="votes_comments" dbtype="decimal" precision="12,2" phptype="float" null="true" default="0"/>
+        <field key="stars_topics" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true" default="0"/>
+        <field key="stars_comments" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true" default="0"/>
 
-        <field key="votes_topics_up" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
-        <field key="votes_topics_down" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
-        <field key="votes_comments_up" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
-        <field key="votes_comments_down" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true"/>
+        <field key="votes_topics_up" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true" default="0"/>
+        <field key="votes_topics_down" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true" default="0"/>
+        <field key="votes_comments_up" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true" default="0"/>
+        <field key="votes_comments_down" dbtype="int" precision="10" phptype="integer" attributes="unsigned" null="true" default="0"/>
 
         <index alias="PRIMARY" name="PRIMARY" primary="true" unique="true" type="BTREE">
             <column key="id" length="" collation="A" null="false"/>
@@ -379,6 +353,9 @@
         <index alias="owner" name="owner" primary="false" unique="false" type="BTREE">
             <column key="owner" length="" collation="A" null="false"/>
         </index>
+
+        <aggregate alias="Topic" class="comTopic" local="id" foreign="id" cardinality="one" owner="foreign"/>
+        <aggregate alias="Comment" class="comComment" local="id" foreign="id" cardinality="one" owner="foreign"/>
     </object>
 
 

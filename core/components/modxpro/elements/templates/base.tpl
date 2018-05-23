@@ -31,6 +31,7 @@
                         </div>
                     </form>
                     {include 'file:chunks/_online.tpl'}
+                    {include 'file:chunks/promo/sidebar.tpl'}
                 {/block}
             </div>
         </div>

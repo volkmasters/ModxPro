@@ -24,14 +24,8 @@ class CommunityStarCommentProcessor extends modObjectProcessor
         $key = [
             'id' => (int)$this->getProperty('id'),
             'class' => 'comComment',
+            'createdby' => $this->modx->user->id,
         ];
-        /** @var comTotal $total */
-        if (!$total = $this->modx->getObject('comTotal', $key)) {
-            $total = $this->modx->newObject('comTotal', $key);
-            $total->fromArray($key, '', true, true);
-        }
-        $key['createdby'] = $this->modx->user->id;
-
         /** @var comStar $star */
         if (!$star = $this->modx->getObject($this->classKey, $key)) {
             $star = $this->modx->newObject($this->classKey, $key);
@@ -41,17 +35,18 @@ class CommunityStarCommentProcessor extends modObjectProcessor
             if ($object = $this->modx->getObject('comComment', $key['id'])) {
                 $star->set('owner', $object->createdby);
             }
-            if ($star->save()) {
-                $total->set($total->get('stars') + 1);
-            }
-        } else {
-            if ($star->remove()) {
-                $total->set($total->get('stars') - 1);
-            }
-        }
-        $total->save();
+            $star->save();
 
-        return $this->success('', $total->get(['stars']));
+        } else {
+            $star->remove();
+        }
+
+        if ($comment = $star->getOne('Comment')) {
+            $comment->set('stars', $this->modx->getCount('comStar', ['id' => $comment->id, 'class' => 'comComment']));
+            $comment->save();
+        }
+
+        return $this->success('', $comment ? $comment->get(['stars']) : 0);
     }
 
 }

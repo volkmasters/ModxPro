@@ -134,7 +134,7 @@ class ModxProPackage
         $attributes = [
             xPDOTransport::UNIQUE_KEY => 'key',
             xPDOTransport::PRESERVE_KEYS => true,
-            xPDOTransport::UPDATE_OBJECT => true,
+            xPDOTransport::UPDATE_OBJECT => false,
             xPDOTransport::RELATED_OBJECTS => false,
         ];
         foreach ($settings as $name => $data) {

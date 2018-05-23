@@ -25,3 +25,8 @@ $_lang['auth_err_username'] = 'Please, specify your login';
 $_lang['auth_err_username_wrong'] = 'The login can consist of letters of the English alphabet, numbers and underscore.';
 $_lang['auth_err_username_exists'] = 'This login is already exists.';
 $_lang['auth_err_password'] = 'You forgot to specify the password. If you don\'t remember it, you can do a reset on the next tab.';
+
+$_lang['app_slack_ok'] = 'Check your mailbox!';
+$_lang['app_slack_err'] = 'Unknown error';
+$_lang['app_slack_err_email'] = 'You forgot to specify email';
+$_lang['app_slack_err_invited'] = 'The invitation was already sent';

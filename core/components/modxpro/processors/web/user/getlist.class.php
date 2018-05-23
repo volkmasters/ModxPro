@@ -95,10 +95,9 @@ class UserGetListProcessor extends AppGetListProcessor
      */
     public function prepareArray(array $array)
     {
-        $modifier = $this->App->pdoTools->getFenom()->getModifier('avatar');
+        $array['avatar'] = $this->App->avatar($array, 48, '{image1}');
+        $array['avatar_retina'] = $this->App->avatar($array, 48, '{image2}');
 
-        $array['avatar'] = $modifier($array, 48);
-        $array['avatar_retina'] = $modifier($array, 96);
         $array['link'] = !empty($array['usename'])
             ? strtolower($array['username'])
             : (int)$array['id'];

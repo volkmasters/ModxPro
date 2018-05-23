@@ -11,12 +11,12 @@
     "backbone.syphon": "0.*",
     "bootstrap": "4.*",
     "fancybox": "3.*",
-    "font-awesome": "git@github.com:FortAwesome/Font-Awesome-Pro.git",
+    "font-awesome-pro": "git+ssh://git@github.com/FortAwesome/Font-Awesome-Pro.git",
     "jquery": "3.*",
     "jquery-form": "4.*",
     "js-cookie": "2.*",
     "markitup": "3.0.0-0",
-    "moment": "2.*",
+    "moment": "~>2.19.3",
     "numeral": "2.*",
     "prismjs": "1.*",
     "requirejs": "2.*"
@@ -28,6 +28,8 @@
     "gulp-rename": "1.*",
     "gulp-sass": "3.*",
     "gulp-uglify": "2.*",
-    "gulp-concat": "2.*"
+    "gulp-concat": "2.*",
+    "gulp-purifycss": "0.*",
+    "gulp-imagemin": "^4.1.0"
   }
 }

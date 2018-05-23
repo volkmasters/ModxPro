@@ -23,20 +23,5 @@ $xpdo_meta_map['comSection']= array (
       'cardinality' => 'many',
       'owner' => 'local',
     ),
-    'Total' => 
-    array (
-      'class' => 'comTotal',
-      'local' => 'id',
-      'foreign' => 'id',
-      'cardinality' => 'one',
-      'owner' => 'local',
-      'criteria' => 
-      array (
-        'foreign' => 
-        array (
-          'class' => 'comSection',
-        ),
-      ),
-    ),
   ),
 );

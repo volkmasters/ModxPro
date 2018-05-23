@@ -38,18 +38,18 @@
         {/if}
 
         {if $subpage == 'drafts'}
-            {var $res = $.App->runProcessor('community/topic/getlist', [
+            {var $res = 'community/topic/getlist' | processor : [
                 'limit' => 10,
                 'where' => ['comTopic.published' => false]
                 'showSection' => true,
                 'user' => $user.id,
-            ])}
+            ]}
         {else}
-            {var $res = $.App->runProcessor('community/topic/getlist', [
+            {var $res = 'community/topic/getlist' | processor :[
                 'limit' => 10,
                 'showSection' => true,
                 'user' => $user.id,
-            ])}
+            ]}
         {/if}
 
         {$res.results}

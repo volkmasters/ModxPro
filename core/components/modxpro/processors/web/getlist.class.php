@@ -69,9 +69,8 @@ class AppGetListProcessor extends modObjectGetListProcessor
 
     public function checkRequest()
     {
-        $request = $_REQUEST;
         $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
-        if (!$isAjax && !empty($request['page']) && $request['page'] == 1) {
+        if (!$isAjax && !empty($_REQUEST['page']) && $_REQUEST['page'] == 1) {
             unset($_GET['page'], $_GET['q']);
             $url = preg_replace('#\?.*#', '', $_SERVER['REQUEST_URI']);
             if (!empty($_GET)) {
@@ -81,6 +80,31 @@ class AppGetListProcessor extends modObjectGetListProcessor
             return $this->failure('', [
                 'redirect' => $url,
             ]);
+        }
+
+        return true;
+    }
+
+
+    /**
+     * @param array $data
+     *
+     * @return array|bool
+     */
+    public function checkResults($data = []) {
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
+        if (!$isAjax && !$data['results']) {
+            if (!empty($_GET['page'])) {
+                unset($_GET['page'], $_GET['q']);
+                $url = preg_replace('#\?.*#', '', $_SERVER['REQUEST_URI']);
+                if (!empty($_GET)) {
+                    $url .= '?' . http_build_query($_GET);
+                }
+
+                return $this->failure('', [
+                    'redirect' => $url,
+                ]);
+            }
         }
 
         return true;
@@ -114,22 +138,13 @@ class AppGetListProcessor extends modObjectGetListProcessor
         }
 
         $c = $this->prepareQueryAfterCount($c);
-
-        $sortClassKey = $this->getSortClassKey();
-        $sortKey = $this->modx->getSelectColumns($sortClassKey, $this->getProperty('sortAlias', $sortClassKey), '',
-            [$this->getProperty('sort')]);
-        if (empty($sortKey)) {
-            $sortKey = $this->getProperty('sort');
-        }
-        $c->sortby($sortKey, $this->getProperty('dir'));
+        $c->sortby($this->getProperty('sort'), $this->getProperty('dir'));
         if ($limit > 0) {
             $c->limit($limit, $start);
         }
-        //$c->prepare();$this->modx->log(1, print_r($c->toSQL(),1));
         $data['results'] = [];
         $tstart = microtime(true);
         if ($c->prepare() && $c->stmt->execute()) {
-            //$this->modx->log(modX::LOG_LEVEL_ERROR, $c->toSQL());
             $this->modx->queryTime += microtime(true) - $tstart;
             $this->modx->executedQueries++;
             $data['results'] = $c->stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -207,9 +222,16 @@ class AppGetListProcessor extends modObjectGetListProcessor
 
         $output = [
             'success' => !empty($array),
+            'start' => $this->getProperty('start'),
+            'limit' => $this->getProperty('limit'),
             'total' => $count,
             'results' => $array,
         ];
+
+        $check = $this->checkResults($output);
+        if ($check !== true) {
+            return $check;
+        }
 
         if ($this->tpl) {
             $output['results'] = $this->App->pdoTools->getChunk(
@@ -218,9 +240,19 @@ class AppGetListProcessor extends modObjectGetListProcessor
             );
         }
 
-        if ($this->getPages && $limit = $this->getProperty('limit')) {
-            $paginator = new Paginator($count, $limit, $this->_page, '?page=(:num)');
-            $output['pages'] = $paginator->getPages();
+        if ($this->getPages && $output['limit']) {
+            $request = $_REQUEST;
+            unset($request['page'], $request[$this->modx->getOption('request_param_alias', null, 'q')]);
+
+            $paginator = new Paginator($count, $output['limit'], $this->_page, '?page=(:num)');
+            $pages = $paginator->getPages();
+            foreach ($pages as &$page) {
+                $page['isActive'] = $page['num'] == $this->_page || (!$this->_page && $page['num'] == 1);
+                if (!empty($request)) {
+                    $page['url'] .= '&' . http_build_query($request);
+                }
+            }
+            $output['pages'] = $pages;
         }
 
         return $output;

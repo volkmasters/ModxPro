@@ -1,5 +1,5 @@
 {var $active = $.cookie['online-tabs'] ?: 'comments'}
-{var $res = $.App->runProcessor('community/online/' ~ $active, ['limit' => 10])}
+{var $res = ('community/online/' ~ $active) | processor : ['limit' => 10]}
 <ul class="nav nav-tabs" id="online-tabs">
     <li class="nav-item">
         <a class="nav-link{if $active == 'comments'} active{/if}" data-toggle="tab" href="#tab-comments">

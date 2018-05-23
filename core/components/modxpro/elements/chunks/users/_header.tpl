@@ -3,7 +3,7 @@
 {var $username = $profile.usename ? $user.username : $user.id}
 <div class="user-header{if $profile.blocked} blocked{/if}" data-username="{$username}">
     <div class="avatar pr-md-3">
-        <img src="{$profile | avatar : 64}" srcset="{$profile | avatar : 128} 2x" width="64" />
+        {$profile | avatar : 64 : '<img src="{image1}" srcset="{image2} 2x" width="{width}" alt="{alt}">'}
     </div>
     <div class="name pt-2 pt-md-0">
         <h1>{$profile.fullname}</h1>

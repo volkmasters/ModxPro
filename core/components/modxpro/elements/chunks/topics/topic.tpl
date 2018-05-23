@@ -26,12 +26,13 @@
         {$content | jevix | prism}
     </div>
     {include 'file:chunks/topics/_meta.tpl' item=$_pls user=$user}
+    {include 'file:chunks/promo/page.tpl'}
 
     <div class="topic-comments">
-        {var $res = $.App->runProcessor('community/comment/getcomments', [
+        {var $res = 'community/comment/getcomments' | processor : [
             'topic' => $id,
             'limit' => 0,
-        ])}
+        ]}
 
         {$res.results}
     </div>
